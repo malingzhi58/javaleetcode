@@ -1222,6 +1222,7 @@ public class Lc15 {
         int[] s19 = {7, 6, 9, 6, 9, 6, 9, 7};
         int[] s20 = {6,1,9};
         lc15.minJumps(s19);
+
 //        Twitter twitter = new Twitter();
 //        twitter.postTweet(1, 5); // User 1 posts a new tweet (id = 5).
 //        twitter.getNewsFeed(1);  // User 1's news feed should return a list with 1 tweet id -> [5]. return [5]
