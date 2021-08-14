@@ -1050,6 +1050,7 @@ public class Lc15 {
             map.computeIfAbsent(arr[i], k -> new ArrayList<>()).add(i);
         }
         boolean[] vis = new boolean[len];
+        Set<Integer> set = new HashSet<>();
         queue.offer(0);
         int step = 0;
         vis[0] = true;
@@ -1063,17 +1064,17 @@ public class Lc15 {
                 if (cur == len - 1) {
                     return step - 1;
                 }
-                if (cur > 0) {
-                    if (vis[cur - 1]) continue;
+                if (cur > 0 && !vis[cur - 1]) {
                     vis[cur - 1] = true;
                     queue.offer(cur - 1);
                 }
-                if (cur < len - 1) {
-                    if (vis[cur + 1]) continue;
+                if (cur < len - 1 && !vis[cur + 1]) {
                     vis[cur + 1] = true;
                     queue.offer(cur + 1);
                 }
+                if (set.contains(arr[cur])) continue;
                 List<Integer> curmap = map.get(arr[cur]);
+                set.add(arr[cur]);
                 for (int j = 0; j < curmap.size(); j++) {
                     int same = curmap.get(j);
                     if (same != cur) {
@@ -1136,32 +1137,65 @@ public class Lc15 {
         }
         return count;
     }
-//    public int countDigitOne(int n) {
-//        int sum = 0;
-//        int len =0,tmp = n;
-//        while(tmp>0){
-//            len++;
-//            tmp/=10;
-//        }
-//        for (int i = 0; i < len; i++) {
-//
-//            int pre = n;
-//            int preop = i+1;
-//            while(preop>0){
-//                pre/=10;
-//                preop--;
-//            }
-//            int behindbit = i;
-//            int behindhundred = i*10;
-//            int cur = (n%behindhundred)&1;
-//            int behind =n%behindhundred;
-//            if(behind==0){
-//
-//            }
-//
-//        }
-//        return sum;
-//    }
+
+    //use pq!
+    public int maxResult2(int[] nums, int k) {
+        int len = nums.length;
+        int[] dp = new int[len];
+        dp[0] = nums[0];
+        for (int i = 1; i < len; i++) {
+            dp[i] = dp[i - 1];
+            for (int j = 2; j <= k; j++) {
+                if (i - j < 0) break;
+                dp[i] = Math.max(dp[i], dp[i - j]);
+            }
+            dp[i] += nums[i];
+        }
+        return dp[len - 1];
+    }
+
+    public int maxResult(int[] nums, int k) {
+        int len = nums.length;
+        if (len == 1) return nums[0];
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[1] - a[1]);
+        pq.offer(new int[]{0, nums[0]});
+        for (int i = 1; i < len - 1; i++) {
+            while (pq.peek()[0] < i - k) {
+                pq.poll();
+            }
+            int[] tar = pq.peek();
+            pq.offer(new int[]{i, tar[1] + nums[i]});
+        }
+        while (pq.peek()[0] < len - 1 - k) {
+            pq.poll();
+        }
+        return pq.peek()[1] + nums[len - 1];
+    }
+
+    public boolean canReach(String s, int minJump, int maxJump) {
+        char[] array = s.toCharArray();
+        int curL=0,curR = 0,nextL=Integer.MAX_VALUE,nextR=0,cur=0;
+        while(cur>=curL&&cur<=curR) {
+            if(cur>=array.length-1) break;
+            if(array[cur]=='0'){
+                nextL = Math.min(nextL,cur+minJump);
+                nextR = Math.max(nextR,cur+maxJump);
+            }
+            cur++;
+            if(cur>curR){
+                curL=nextL;
+                curR=nextR;
+                cur = nextL;
+                nextL=Integer.MAX_VALUE;
+                nextR=0;
+            }
+        }
+        if(cur>array.length-1)return false;
+        if(cur==array.length-1){
+            return array[cur]=='0';
+        }
+        return false;
+    }
 
     public static void main(String[] args) {
         Lc15 lc15 = new Lc15();
@@ -1220,8 +1254,16 @@ public class Lc15 {
 
         int[] s18 = {100, -23, -23, 404, 100, 23, 23, 23, 3, 404};
         int[] s19 = {7, 6, 9, 6, 9, 6, 9, 7};
-        int[] s20 = {6,1,9};
-        lc15.minJumps(s19);
+        int[] s20 = {6, 1, 9};
+//        int r20 =lc15.minJumps(s20);
+//        System.out.println(r20);
+        int[] s21 = {1, -5, -20, 4, -1, 3, -6, -3};
+        int[] s22 = {100, -1, -100, -1, 100};
+//        lc15.maxResult(s22, 2);
+
+//        lc15.canReach("011010",2, 3);
+        boolean r23= lc15.canReach("01101110",2, 3);
+        System.out.println(r23);
 
 //        Twitter twitter = new Twitter();
 //        twitter.postTweet(1, 5); // User 1 posts a new tweet (id = 5).
