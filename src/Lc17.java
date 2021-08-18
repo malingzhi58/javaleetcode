@@ -229,19 +229,19 @@ public class Lc17 {
         return count;
     }
 
-    public int[] rearrangeArray(int[] nums) {
-        int len = nums.length;
-        Arrays.sort(nums);
-//        int[] res = new int[len];
-        int left = 0, right = len - 1;
-
-        while (left < right && left < len) {
-            swap(nums, left, right);
-            left += 2;
-            right -= 2;
-        }
-        return nums;
-    }
+//    public int[] rearrangeArray(int[] nums) {
+//        int len = nums.length;
+//        Arrays.sort(nums);
+////        int[] res = new int[len];
+//        int left = 0, right = len - 1;
+//
+//        while (left < right && left < len) {
+//            swap(nums, left, right);
+//            left += 2;
+//            right -= 2;
+//        }
+//        return nums;
+//    }
 
     private void swap(int[] nums, int left, int right) {
         int tmp = nums[left];
@@ -664,6 +664,125 @@ public class Lc17 {
         return res;
     }
 
+    public boolean checkRecord(String s) {
+        char[] arr = s.toCharArray();
+        int Asum = 0, Lsum = 0;
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == 'A') Asum++;
+            if (arr[i] == 'L') Lsum++;
+            if (i > 0 && arr[i] == arr[i - 1] && arr[i] == 'L') {
+                Lsum++;
+            } else {
+                Lsum = 0;
+            }
+            if (Asum > 1) return false;
+            if (Lsum > 2) return false;
+        }
+        return true;
+    }
+
+    public int[] rearrangeArray(int[] nums) {
+        int len = nums.length;
+//        if(len<3) return
+//        have more or equal elements
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((a, b) -> b - a);
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+        if (nums[0] < nums[1]) {
+            maxHeap.offer(nums[0]);
+            minHeap.offer(nums[1]);
+        } else {
+            minHeap.offer(nums[0]);
+            maxHeap.offer(nums[1]);
+        }
+        for (int i = 2; i < len; i++) {
+            if (nums[i] < minHeap.peek()) {
+                maxHeap.offer(nums[i]);
+            } else {
+                minHeap.offer(nums[i]);
+            }
+            while (maxHeap.size() > minHeap.size() + 1) {
+                minHeap.offer(maxHeap.poll());
+            }
+            while (minHeap.size() > maxHeap.size()) {
+                maxHeap.offer(minHeap.poll());
+            }
+        }
+        Stack<Integer> stack = new Stack<>();
+        while (!maxHeap.isEmpty()) {
+            stack.push(maxHeap.poll());
+        }
+        int[] res = new int[len];
+        int id = 0;
+        while (!stack.isEmpty() || !maxHeap.isEmpty()) {
+            if (!stack.isEmpty()) {
+                res[id++] = stack.pop();
+            }
+            if (!minHeap.isEmpty()) {
+                res[id++] = minHeap.poll();
+            }
+        }
+        return res;
+    }
+
+    public void wiggleSort(int[] nums) {
+        Arrays.sort(nums);
+        int len = nums.length;
+        int[] res = new int[len];
+        int mid = 0;
+        if (len % 2 == 0) {
+            mid = len / 2;
+        } else {
+            mid = len / 2 + 1;
+        }
+        int left = 0, right = mid, idx = 0;
+        while (left < mid || right < len) {
+            if (left < mid) {
+                res[idx++] = nums[left];
+                left++;
+            }
+            if (right < len) {
+                res[idx++] = nums[right];
+                right++;
+            }
+        }
+        for (int i = 0; i < len; i++) {
+            nums[i]=res[i];
+        }
+    }
+    public int kthLargestValue(int[][] matrix, int k) {
+        int row = matrix.length,col =matrix[0].length;
+        int[][] dp = new int[row][col];
+        int[][] res = new int[row][col];
+        for (int i = 0; i < row; i++) {
+            int start = 0;
+            for (int j = 0; j < col; j++) {
+                start=start^matrix[i][j];
+                dp[i][j]=start;
+            }
+        }
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                int tmp = 0;
+                for (int l = 0; l <=i; l++) {
+                    tmp^=dp[l][j];
+                }
+                res[i][j]=tmp;
+            }
+        }
+        PriorityQueue<Integer> pq =new PriorityQueue<>((a,b)->b-a);
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                pq.offer(res[i][j]);
+            }
+        }
+        int ans =0;
+        while(k>0){
+            ans = pq.poll();
+            k--;
+        }
+        return ans;
+
+    }
     public static void main(String[] args) {
         Lc17 lc17 = new Lc17();
 //        int[] s3 = {3, 4, 6, 8};
@@ -703,8 +822,11 @@ public class Lc17 {
 //        int r14 = lc17.countArrangement(2);
 //        System.out.println(r14);
 
-        ListNode s15 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
-        lc17.reverseBetween(s15, 2, 4);
+//        ListNode s15 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
+//        lc17.reverseBetween(s15, 2, 4);
+
+        int[] s16 = {1, 2, 3, 4, 5};
+//        lc17.rearrangeArray(s16);
 
     }
 }
@@ -745,3 +867,116 @@ public class Lc17 {
 
 // Time: O(2^n * n^2)
 // Space: O(2 ^ n)
+
+//class Solution {
+//    static final long MOD = 1000000007;
+//
+//    public int minNonZeroProduct(int p) {
+//        long a = (1L << p) - 1L;
+//        long b = a - 1L;
+//        long c = b / 2L;
+//        long ans = ((a % MOD) * pow(b % MOD, c)) % MOD;
+//
+//        return (int) ans;
+//    }
+//
+//    public long pow(long b, long c) {
+//        long res = 1;
+//        long x = b;
+//        while (c != 0) {
+//            if ((c & 1) == 1) {
+//                res = (res * x) % MOD;
+//            }
+//            c >>= 1;
+//            x = (x * b) % MOD;
+//        }
+//        return res;
+//    }
+//}
+
+//class Solution {
+//    public int kthLargestValue(int[][] matrix, int k) {
+//        int row = matrix.length;
+//        int col = matrix[0].length;
+//        int[] nums = new int[row * col];
+//        nums[0] = matrix[0][0];
+//
+//        for (int i = 1; i < col; i++) {
+//            nums[i] = nums[i -1] ^ matrix[0][i];
+//        }
+//        for (int i = 1; i < row; i++) {
+//            nums[col * i] = nums[col * (i - 1)] ^ matrix[i][0];
+//        }
+//
+//        for (int i = 1; i < row; i++) {
+//            for (int j = 1; j < col; j++) {
+//                nums[i*col + j] = nums[i * col + j - 1] ^ nums[(i - 1) * col + j] ^
+//                        nums[(i - 1) * col + j - 1] ^  matrix[i][j];
+//            }
+//        }
+//        return findKthLargest(nums, k);
+//    }
+//
+//
+//    Random random = new Random();
+//    public int findKthLargest(int[] nums, int k){
+//        int n = nums.length;
+//        return quickSelect(nums, 0, n - 1, n - k);
+//    }
+//
+//    private int quickSelect(int[] nums, int left, int right, int index) {
+//        int mid = randomPartition(nums, left, right);
+//        if (mid == index){
+//            return nums[mid];
+//        }else if (mid > index){
+//            return quickSelect(nums, left, mid - 1, index);
+//        }else {
+//            return quickSelect(nums, mid + 1, right, index);
+//        }
+//    }
+//
+//    private int randomPartition(int[] nums, int left, int right) {
+//        int i = random.nextInt(right - left + 1) + left;
+//        swap(nums, i, right);
+//        return Partitison(nums, left, right);
+//    }
+//    private int randomPartition2(int[] nums, int left, int right) {
+//        int i = random.nextInt(right - left + 1) + left;
+//        swap(nums, i, left);
+//        return Partitison2(nums, left, right);
+//    }
+//    private int Partitison2(int[] nums, int left, int right) {
+//        int i = left;
+//        int j = right;
+//        int x = nums[left];
+//        while (i<j){
+//            while(j>i&&nums[j]>x)j--;
+//            while(j>i&&nums[i]<x)i++;
+//            swap(nums, i, j);
+//        }
+//        swap(nums, i, left);
+//        return i;
+//    }
+//    private int Partitison(int[] nums, int left, int right) {
+//        int i = left - 1;
+//        int j = right;
+//        int x = nums[right];
+//        while (true){
+//            while (nums[++i] < x);
+//            while (j > 0 && nums[--j] > x);
+//            if (i < j){
+//                swap(nums, i, j);
+//            }else {
+//                break;
+//            }
+//        }
+//        swap(nums, i, right);
+//        return i;
+//    }
+//
+//    public void swap (int[] arr, int left, int right){
+//        int temp = arr[left];
+//        arr[left] = arr[right];
+//        arr[right] = temp;
+//    }
+//}

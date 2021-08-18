@@ -1,8 +1,6 @@
 import java.lang.reflect.Array;
 import java.util.*;
 
-import static com.sun.tools.javac.jvm.ByteCodes.ret;
-import static com.sun.tools.javac.jvm.ByteCodes.swap;
 
 public class Lc8 {
     public int countTriples(int n) {
